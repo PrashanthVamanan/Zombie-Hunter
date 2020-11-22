@@ -7,6 +7,7 @@ public class SpawnManager : MonoBehaviour
     private Vector3 playerStartPos = new Vector3(0.43f, 0.7f, -24);
 
     private GameObject player;
+    private PlayerController playerController;
     private GameObject currentPowerUp;
 
     private int waveNumber = 1;
@@ -18,7 +19,7 @@ public class SpawnManager : MonoBehaviour
     private float powerUpSpawnYPos = 0.5f;
 
     //Power up related variables
-    private int powerUpCoolDownDelay = 10;
+    private int powerUpCoolDownDelay = 15;
     private bool isPowerUpPresent = false;
 
     public GameObject[] enemyPrefabs;
@@ -28,6 +29,7 @@ public class SpawnManager : MonoBehaviour
     void Start()
     {
         player = GameObject.Find("Player");
+        playerController = player.GetComponent<PlayerController>();
     }
 
     // Update is called once per frame
@@ -39,14 +41,14 @@ public class SpawnManager : MonoBehaviour
         //Get the powerup currently present int the scene
         currentPowerUp = GameObject.FindGameObjectWithTag("Powerup");
 
-        //If there is no powerup already present spawn a new powerup
-        if (currentPowerUp == null && !isPowerUpPresent)
+        //If there is no powerup already and game is not over, present spawn a new powerup
+        if (currentPowerUp == null && !isPowerUpPresent && !playerController.isGameOver)
         {
             spawnPowerUp();
         }
 
-        //If all enemies have been destroyed in a wave, spawn the next wave
-        if (noOfCurrentEnemies == 0)
+        //If all enemies have been destroyed in a wave and game is not over, spawn the next wave
+        if (noOfCurrentEnemies == 0 && !playerController.isGameOver)
         {
             resetPlayerPositionBeforeNextWave();
             spawnRandomEnemiesInWaves(waveNumber);
@@ -74,10 +76,9 @@ public class SpawnManager : MonoBehaviour
     {
         if (!isPowerUpPresent)
         {
-                Instantiate(powerUpPrefab, returnRandomSpawnPosition(false), powerUpPrefab.transform.rotation);
-                isPowerUpPresent = true;
-                StartCoroutine(powerUpCoolDownRoutine());
-            
+            Instantiate(powerUpPrefab, returnRandomSpawnPosition(false), powerUpPrefab.transform.rotation);
+            isPowerUpPresent = true;
+            StartCoroutine(powerUpCoolDownRoutine());
         }
     }
 

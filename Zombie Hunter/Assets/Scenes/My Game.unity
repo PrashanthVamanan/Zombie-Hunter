@@ -641,6 +641,7 @@ MonoBehaviour:
   projectilePrefab: {fileID: 8206020466730416241, guid: b244a5301c18b3a4aa5527169c7b2dfc,
     type: 3}
   speed: 65
+  hasPowerUp: 0
 --- !u!54 &1000793705
 Rigidbody:
   m_ObjectHideFlags: 0

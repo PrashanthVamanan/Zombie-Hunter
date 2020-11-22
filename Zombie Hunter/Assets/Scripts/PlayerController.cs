@@ -7,14 +7,18 @@ public class PlayerController : MonoBehaviour
     private Rigidbody playerRb;
     private GameObject focalPoint;
 
-    private float bottomBound = -24.0f;
+    private float bottomBound = -22.0f;
+    private float rightBound = 20.0f;
+
     private float projectileDelay = 0.6f;
     private float enemyKnockBackStrength = 500;
-    private int playerHealth = 6;
+
+    private float playerHealth = 6;
     private bool canFireProjectile = true;
 
     public GameObject projectilePrefab;
     public float speed = 10.0f;
+    public bool isGameOver = false;
 
     // Start is called before the first frame update
     void Start()
@@ -29,8 +33,8 @@ public class PlayerController : MonoBehaviour
         movePlayer();
         restrictPlayerBounds();
 
-        //Instantiate the projectile if spacebar is pressed
-        if (Input.GetKeyDown(KeyCode.Space) && canFireProjectile)
+        //Instantiate the projectile if spacebar is pressed and game is not over
+        if (Input.GetKeyDown(KeyCode.Space) && canFireProjectile && !isGameOver)
         {
             Instantiate(projectilePrefab, transform.position, projectilePrefab.transform.rotation);
             canFireProjectile = false;
@@ -58,6 +62,16 @@ public class PlayerController : MonoBehaviour
         {
             transform.position = new Vector3(transform.position.x, transform.position.y, bottomBound);
         }
+
+        if (transform.position.x > rightBound)
+        {
+            transform.position = new Vector3(rightBound, transform.position.y, transform.position.z);
+        }
+
+        if (transform.position.x < -rightBound)
+        {
+            transform.position = new Vector3(-rightBound, transform.position.y, transform.position.z);
+        }
     }
 
     //Avoid spamming of projectiles by player, by introducing a delay
@@ -80,9 +94,10 @@ public class PlayerController : MonoBehaviour
             playerHealth--;
 
             //If player's health reaches zero, destroy the player
-            if (playerHealth == 0)
+            if (playerHealth <= 0)
             {
                 Destroy(gameObject); //Game ends here
+                isGameOver = true;
             }
         }
     }
@@ -93,6 +108,9 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("Powerup"))
         {
             Destroy(other.gameObject);
+
+            //When the player picks the powerup increase his health by 0.5
+            playerHealth += 0.5f;
         }
     }
 }
