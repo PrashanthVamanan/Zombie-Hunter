@@ -4,18 +4,20 @@ using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    private Vector3 playerStartPos = new Vector3(0.43f, 0.7f, -24);
-
-    private GameObject player;
     private PlayerController playerController;
     private GameObject currentPowerUp;
 
-    private int waveNumber = 1;
+    public float spawnRate = 2.0f;
+    private float startDelay = 1.0f;
 
-    //Spawn variables
-    private float spawnXRange = 20.0f;
+    //Enemy Spawn variables
+    private float spawnXRange = 18.0f;
     private float spawnZPos = 20.0f;
     private float spawnYPos = 0.7f;
+
+    //Power up Spawn variables
+    private float powerUpSpawnZStartPos = -15.0f;
+    private float powerUpSpawnZEndPos = -23.0f;
     private float powerUpSpawnYPos = 0.5f;
 
     //Power up related variables
@@ -28,15 +30,15 @@ public class SpawnManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        player = GameObject.Find("Player");
-        playerController = player.GetComponent<PlayerController>();
+        playerController = GameObject.Find("Player").GetComponent<PlayerController>();
+        Debug.Log(playerController.isGameOver);
+
+        InvokeRepeating("spawnRandomEnemies", startDelay, spawnRate);
     }
 
     // Update is called once per frame
     void Update()
     {
-        //Get the number of enemies currently present in the scene
-        int noOfCurrentEnemies = FindObjectsOfType<EnemyController>().Length;
 
         //Get the powerup currently present int the scene
         currentPowerUp = GameObject.FindGameObjectWithTag("Powerup");
@@ -46,29 +48,18 @@ public class SpawnManager : MonoBehaviour
         {
             spawnPowerUp();
         }
-
-        //If all enemies have been destroyed in a wave and game is not over, spawn the next wave
-        if (noOfCurrentEnemies == 0 && !playerController.isGameOver)
-        {
-            resetPlayerPositionBeforeNextWave();
-            spawnRandomEnemiesInWaves(waveNumber);
-        }
-
     }
 
     //Spawn random enemies at random positions
-    void spawnRandomEnemiesInWaves(int enemiesToSpawn)
+    void spawnRandomEnemies()
     {
-        for (int i = 0; i < enemiesToSpawn; i++)
+        if (!playerController.isGameOver)
         {
             int enemyIndex = Random.Range(0, enemyPrefabs.Length);
-
             GameObject enemyToSpawn = enemyPrefabs[enemyIndex];
 
             Instantiate(enemyToSpawn, returnRandomSpawnPosition(true), enemyToSpawn.transform.rotation);
         }
-
-        waveNumber++;
     }
 
     //Spawn a powerup at a random position if a powerup is not already present
@@ -102,7 +93,7 @@ public class SpawnManager : MonoBehaviour
     Vector3 returnRandomSpawnPosition(bool isEnemy)
     {
         float spawnXPos = Random.Range(-spawnXRange, spawnXRange);
-        float zSpawnPos = Random.Range(-spawnZPos, spawnZPos);
+        float zPowerupSpawnPos = Random.Range(powerUpSpawnZStartPos, powerUpSpawnZEndPos);
 
         Vector3 spawnPos;
 
@@ -112,15 +103,8 @@ public class SpawnManager : MonoBehaviour
         }
         else
         {
-            spawnPos = new Vector3(spawnXPos, powerUpSpawnYPos, zSpawnPos);
+            spawnPos = new Vector3(spawnXPos, powerUpSpawnYPos, zPowerupSpawnPos);
         }
-
         return spawnPos;
-    }
-
-    //Reset the player position to his start position before the next wave
-    void resetPlayerPositionBeforeNextWave()
-    {
-        player.transform.position = playerStartPos;
     }
 }

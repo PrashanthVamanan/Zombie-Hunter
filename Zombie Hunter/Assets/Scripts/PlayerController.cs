@@ -1,30 +1,30 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody playerRb;
-    private GameObject focalPoint;
+    private DestroyOutOfBounds destroyOutOfBoundsScript;
 
-    private float bottomBound = -22.0f;
-    private float rightBound = 20.0f;
+    private float bottomBound = -24.0f;
+    private float rightBound = 18.0f;
+    private float topBound = -15.0f;
 
     private float projectileDelay = 0.6f;
     private float enemyKnockBackStrength = 500;
 
-    private float playerHealth = 6;
     private bool canFireProjectile = true;
 
     public GameObject projectilePrefab;
-    public float speed = 10.0f;
-    public bool isGameOver = false;
 
+    public float speed = 10.0f;
+    public float playerMisses = 5;
+    public bool isGameOver = false;
+   
     // Start is called before the first frame update
     void Start()
     {
         playerRb = GetComponent<Rigidbody>();
-        focalPoint = GameObject.Find("Focal Point");
     }
 
     // Update is called once per frame
@@ -51,7 +51,7 @@ public class PlayerController : MonoBehaviour
         float horizontalInput = Input.GetAxis("Horizontal");
 
         //Add forces to make player move 
-        playerRb.AddForce(focalPoint.transform.forward * speed * verticalInput);
+        playerRb.AddForce(Vector3.forward * speed * verticalInput);
         playerRb.AddForce(Vector3.right * speed * horizontalInput);
     }
 
@@ -63,15 +63,23 @@ public class PlayerController : MonoBehaviour
             transform.position = new Vector3(transform.position.x, transform.position.y, bottomBound);
         }
 
-        if (transform.position.x > rightBound)
+        if(transform.position.z > topBound)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, topBound);
+        }
+
+        if(transform.position.x > rightBound)
         {
             transform.position = new Vector3(rightBound, transform.position.y, transform.position.z);
+
         }
 
         if (transform.position.x < -rightBound)
         {
             transform.position = new Vector3(-rightBound, transform.position.y, transform.position.z);
+
         }
+
     }
 
     //Avoid spamming of projectiles by player, by introducing a delay
@@ -89,16 +97,6 @@ public class PlayerController : MonoBehaviour
             //Calculate knockback force to be applied to the player
             Vector3 knockBackVector = (gameObject.transform.position - collision.gameObject.transform.position).normalized;
             playerRb.AddForce(knockBackVector * enemyKnockBackStrength, ForceMode.Impulse);
-
-            //Decrease player's health with each hit from the enemy
-            playerHealth--;
-
-            //If player's health reaches zero, destroy the player
-            if (playerHealth <= 0)
-            {
-                Destroy(gameObject); //Game ends here
-                isGameOver = true;
-            }
         }
     }
 
@@ -108,9 +106,27 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("Powerup"))
         {
             Destroy(other.gameObject);
-
-            //When the player picks the powerup increase his health by 0.5
-            playerHealth += 0.5f;
+            updatePlayerMisses(0.5f, true);
         }
+    }
+
+    //Keep track of number of enemies the player has missed
+    public void updatePlayerMisses(float missValue, bool isPowerUp)
+    {
+        if (!isPowerUp)
+        {
+            playerMisses -= missValue;
+        }
+        else
+        {
+            playerMisses += missValue;
+        }
+
+        if (playerMisses <= 0)
+        {
+            isGameOver = true;
+            Destroy(gameObject);
+        }
+
     }
 }
