@@ -7,13 +7,16 @@ public class EnemyController : MonoBehaviour
     public float speed = 5.0f;
 
     private Rigidbody enemyRb;
+
     private PlayerController playerController;
+    private SpawnManager spawnManager;
 
     // Start is called before the first frame update
     void Start()
     {
         enemyRb = GetComponent<Rigidbody>();
         playerController = GameObject.Find("Player").GetComponent<PlayerController>();
+        spawnManager = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
     }
 
     // Update is called once per frame
@@ -47,8 +50,8 @@ public class EnemyController : MonoBehaviour
         //If enemy is hit by a projectile
         if (other.gameObject.CompareTag("Projectile"))
         {
+            spawnManager.enemyDestroyed(gameObject);
             Destroy(other.gameObject);
-            Destroy(gameObject);
         }
 
     }

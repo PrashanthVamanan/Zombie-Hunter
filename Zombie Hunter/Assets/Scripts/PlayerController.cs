@@ -4,27 +4,37 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody playerRb;
-    private DestroyOutOfBounds destroyOutOfBoundsScript;
+    private AudioSource playerAudio;
 
     private float bottomBound = -24.0f;
     private float rightBound = 18.0f;
     private float topBound = -15.0f;
 
     private float projectileDelay = 0.6f;
-    private float enemyKnockBackStrength = 500;
+    private float enemyKnockBackStrength = 200;
 
     private bool canFireProjectile = true;
 
     public GameObject projectilePrefab;
 
     public float speed = 10.0f;
-    public float playerMisses = 5;
+    public float playerMisses = 1;
     public bool isGameOver = false;
-   
+
+    //Audio clips
+    public AudioClip gameOverSound;
+    public AudioClip projectileFiredSound;
+    public AudioClip playerHurtSound;
+    public AudioClip powerUpSound;
+
+    //Particle Effects
+    public ParticleSystem gameOverParticle;
+
     // Start is called before the first frame update
     void Start()
     {
         playerRb = GetComponent<Rigidbody>();
+        playerAudio = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -38,9 +48,9 @@ public class PlayerController : MonoBehaviour
         {
             Instantiate(projectilePrefab, transform.position, projectilePrefab.transform.rotation);
             canFireProjectile = false;
+            playerAudio.PlayOneShot(projectileFiredSound);
             StartCoroutine(projectileCountDownRoutine());
         }
-
     }
 
     //Move the player based on arrow key input
@@ -63,12 +73,12 @@ public class PlayerController : MonoBehaviour
             transform.position = new Vector3(transform.position.x, transform.position.y, bottomBound);
         }
 
-        if(transform.position.z > topBound)
+        if (transform.position.z > topBound)
         {
             transform.position = new Vector3(transform.position.x, transform.position.y, topBound);
         }
 
-        if(transform.position.x > rightBound)
+        if (transform.position.x > rightBound)
         {
             transform.position = new Vector3(rightBound, transform.position.y, transform.position.z);
 
@@ -97,6 +107,9 @@ public class PlayerController : MonoBehaviour
             //Calculate knockback force to be applied to the player
             Vector3 knockBackVector = (gameObject.transform.position - collision.gameObject.transform.position).normalized;
             playerRb.AddForce(knockBackVector * enemyKnockBackStrength, ForceMode.Impulse);
+
+            playerAudio.PlayOneShot(playerHurtSound);
+
         }
     }
 
@@ -105,6 +118,7 @@ public class PlayerController : MonoBehaviour
         //If player has picked up a powerup
         if (other.gameObject.CompareTag("Powerup"))
         {
+            playerAudio.PlayOneShot(powerUpSound);
             Destroy(other.gameObject);
             updatePlayerMisses(0.5f, true);
         }
@@ -125,7 +139,11 @@ public class PlayerController : MonoBehaviour
         if (playerMisses <= 0)
         {
             isGameOver = true;
-            Destroy(gameObject);
+            Instantiate(gameOverParticle, transform.position, gameOverParticle.transform.rotation);
+            playerAudio.PlayOneShot(gameOverSound);
+
+            //Destroy the player after the game over sound has finished playing
+            Destroy(gameObject, gameOverSound.length); 
         }
 
     }

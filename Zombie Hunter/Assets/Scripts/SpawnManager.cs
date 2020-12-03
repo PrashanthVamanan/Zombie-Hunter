@@ -6,6 +6,7 @@ public class SpawnManager : MonoBehaviour
 {
     private PlayerController playerController;
     private GameObject currentPowerUp;
+    private AudioSource enemyAudio;
 
     public float spawnRate = 2.0f;
     private float startDelay = 1.0f;
@@ -27,11 +28,14 @@ public class SpawnManager : MonoBehaviour
     public GameObject[] enemyPrefabs;
     public GameObject powerUpPrefab;
 
+    public ParticleSystem enemyDestroyedParticle;
+    public AudioClip enemyKilledSound;
+
     // Start is called before the first frame update
     void Start()
     {
         playerController = GameObject.Find("Player").GetComponent<PlayerController>();
-        Debug.Log(playerController.isGameOver);
+        enemyAudio = GetComponent<AudioSource>();
 
         InvokeRepeating("spawnRandomEnemies", startDelay, spawnRate);
     }
@@ -106,5 +110,14 @@ public class SpawnManager : MonoBehaviour
             spawnPos = new Vector3(spawnXPos, powerUpSpawnYPos, zPowerupSpawnPos);
         }
         return spawnPos;
+    }
+
+    //Play particle and sound effects when enemy is destroyed
+    public void enemyDestroyed(GameObject enemy)
+    {
+        Instantiate(enemyDestroyedParticle, enemy.transform.position, enemyDestroyedParticle.transform.rotation);
+        enemyAudio.PlayOneShot(enemyKilledSound);
+
+        Destroy(enemy, enemyDestroyedParticle.main.duration);
     }
 }
