@@ -5,6 +5,7 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
     private PlayerController playerController;
+
     private GameObject currentPowerUp;
     private AudioSource enemyAudio;
 
@@ -43,7 +44,6 @@ public class SpawnManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         //Get the powerup currently present int the scene
         currentPowerUp = GameObject.FindGameObjectWithTag("Powerup");
 
@@ -52,6 +52,7 @@ public class SpawnManager : MonoBehaviour
         {
             spawnPowerUp();
         }
+
     }
 
     //Spawn random enemies at random positions

@@ -5,11 +5,13 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
     public float speed = 5.0f;
+    public int enemyPoint;
 
     private Rigidbody enemyRb;
 
     private PlayerController playerController;
     private SpawnManager spawnManager;
+    private UIManager uiManager;
 
     // Start is called before the first frame update
     void Start()
@@ -17,6 +19,7 @@ public class EnemyController : MonoBehaviour
         enemyRb = GetComponent<Rigidbody>();
         playerController = GameObject.Find("Player").GetComponent<PlayerController>();
         spawnManager = GameObject.Find("Spawn Manager").GetComponent<SpawnManager>();
+        uiManager = GameObject.Find("UI Manager").GetComponent<UIManager>();
     }
 
     // Update is called once per frame
@@ -50,7 +53,13 @@ public class EnemyController : MonoBehaviour
         //If enemy is hit by a projectile
         if (other.gameObject.CompareTag("Projectile"))
         {
+            //Play sound and particle effect for destroyed enemy
             spawnManager.enemyDestroyed(gameObject);
+            
+            //Update the score
+            uiManager.updateScore(enemyPoint); 
+
+            //Destroy the projectile
             Destroy(other.gameObject);
         }
 

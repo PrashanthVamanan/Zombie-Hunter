@@ -5,6 +5,7 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody playerRb;
     private AudioSource playerAudio;
+    private UIManager uiManager;
 
     private float bottomBound = -24.0f;
     private float rightBound = 18.0f;
@@ -18,8 +19,9 @@ public class PlayerController : MonoBehaviour
     public GameObject projectilePrefab;
 
     public float speed = 10.0f;
-    public float playerMisses = 1;
     public bool isGameOver = false;
+
+    public int numOfBombs = 5;
 
     //Audio clips
     public AudioClip gameOverSound;
@@ -35,6 +37,7 @@ public class PlayerController : MonoBehaviour
     {
         playerRb = GetComponent<Rigidbody>();
         playerAudio = GetComponent<AudioSource>();
+        uiManager = GameObject.Find("UI Manager").GetComponent<UIManager>();
     }
 
     // Update is called once per frame
@@ -120,31 +123,42 @@ public class PlayerController : MonoBehaviour
         {
             playerAudio.PlayOneShot(powerUpSound);
             Destroy(other.gameObject);
-            updatePlayerMisses(0.5f, true);
+
+            if (numOfBombs < 5)
+            {
+                updatePlayerMisses(1, true);
+            }
         }
     }
 
     //Keep track of number of enemies the player has missed
-    public void updatePlayerMisses(float missValue, bool isPowerUp)
+    public void updatePlayerMisses(int missValue, bool isPowerUp)
     {
-        if (!isPowerUp)
+        if (!isGameOver)
         {
-            playerMisses -= missValue;
-        }
-        else
-        {
-            playerMisses += missValue;
-        }
+            if (!isPowerUp)
+            {
+                numOfBombs -= missValue;
 
-        if (playerMisses <= 0)
-        {
-            isGameOver = true;
-            Instantiate(gameOverParticle, transform.position, gameOverParticle.transform.rotation);
-            playerAudio.PlayOneShot(gameOverSound);
+                //Decrease no of chances in UI by one
+                uiManager.updateHealth(numOfBombs, isPowerUp);
+            }
+            else
+            {
+                //Increase no of chances in UI by one
+                uiManager.updateHealth(numOfBombs, isPowerUp);
+                numOfBombs += missValue;
+            }
 
-            //Destroy the player after the game over sound has finished playing
-            Destroy(gameObject, gameOverSound.length); 
+            if (numOfBombs <= 0)
+            {
+                isGameOver = true;
+                Instantiate(gameOverParticle, transform.position, gameOverParticle.transform.rotation);
+                playerAudio.PlayOneShot(gameOverSound);
+
+                //Destroy the player after the game over sound has finished playing
+                Destroy(gameObject, gameOverSound.length);
+            }
         }
-
     }
 }
