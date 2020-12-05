@@ -13,7 +13,7 @@ public class SpawnManager : MonoBehaviour
     private float startDelay = 1.0f;
 
     //Enemy Spawn variables
-    private float spawnXRange = 18.0f;
+    private float spawnXRange = 16.0f;
     private float spawnZPos = 20.0f;
     private float spawnYPos = 0.7f;
 

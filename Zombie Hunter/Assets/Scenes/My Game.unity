@@ -4716,6 +4716,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 19821056, guid: 079954accd64b32419ec069129c81273,
         type: 3}
+    - target: {fileID: 5976977240697718520, guid: cfe2cfc7ae0ea89459c6dbf1f1b35bb8,
+        type: 3}
+      propertyPath: enemyMissSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 4a812d476bd234fcdad7cc31ff6e9473, type: 3}
     - target: {fileID: 5976977240697718521, guid: cfe2cfc7ae0ea89459c6dbf1f1b35bb8,
         type: 3}
       propertyPath: m_Constraints

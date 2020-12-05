@@ -28,6 +28,7 @@ public class PlayerController : MonoBehaviour
     public AudioClip projectileFiredSound;
     public AudioClip playerHurtSound;
     public AudioClip powerUpSound;
+    public AudioClip enemyMissSound;
 
     //Particle Effects
     public ParticleSystem gameOverParticle;
@@ -139,6 +140,7 @@ public class PlayerController : MonoBehaviour
             if (!isPowerUp)
             {
                 numOfBombs -= missValue;
+                playerAudio.PlayOneShot(enemyMissSound);
 
                 //Decrease no of chances in UI by one
                 uiManager.updateHealth(numOfBombs, isPowerUp);
